@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 )
 
 // Ensures gofmt doesn't remove the "fmt" import in stage 1 (feel free to remove this!)
@@ -14,6 +15,9 @@ func main() {
 		fmt.Print("$ ")
 		var cmd string
 		fmt.Scanln(&cmd)
+		if strings.ToLower(cmd) == "exit" {
+			break
+		}
 		fmt.Print(cmd)
 		fmt.Println(": command not found")
 
