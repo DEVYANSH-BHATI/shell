@@ -25,6 +25,9 @@ func main() {
 		case "echo":
 			echo(tokens)
 
+		case "exit":
+			break
+
 		default:
 			fmt.Print(tokens[0])
 			fmt.Println(": command not found")
