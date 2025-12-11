@@ -57,7 +57,6 @@ func echo(tokens []string) {
 }
 
 func typee(token string) {
-	println("yes ", token, "\n")
 	cmds := []string{"echo", "exit"}
 	if slices.Contains(cmds, token) {
 		fmt.Print(token, "is a shell builtin")
