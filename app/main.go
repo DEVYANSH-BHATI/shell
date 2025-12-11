@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 )
 
@@ -18,15 +19,25 @@ func main() {
 		fmt.Print("$ ")
 		var cmd string
 		scanner.Scan()
+		if scanner.Err() != nil {
+			continue
+		}
 		cmd = scanner.Text()
+
 		tokens := strings.Fields(cmd)
+
+		if len(tokens) == 0 {
+			continue
+		}
 
 		switch strings.ToLower(tokens[0]) {
 		case "echo":
 			echo(tokens)
 
+		case "type":
+			typee(strings.ToLower(tokens[1]))
+
 		case "exit":
-			break
 
 		default:
 			fmt.Print(tokens[0])
@@ -39,9 +50,19 @@ func main() {
 		}
 
 	}
-
 }
 
 func echo(tokens []string) {
 	println(strings.Join(tokens[1:], " "))
+}
+
+func typee(token string) {
+	println("yes ", token, "\n")
+	cmds := []string{"echo", "exit"}
+	if slices.Contains(cmds, token) {
+		fmt.Print(token, "is a shell builtin")
+	} else {
+		fmt.Println(token + ": not found")
+	}
+
 }
