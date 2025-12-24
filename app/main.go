@@ -90,14 +90,17 @@ func findExecutable(token string) (bool, string) {
 		for _, dir := range directories {
 
 			// fmt.Println(dir)
-			tokenpath := filepath.Join(dir, token)
+			tokenpath := filepath.Join(dir + "/" + token)
 
 			// fullPath := filepath.Join(dir, file.Name())
 			// fmt.Println("File:", fullPath)
-			_, err := os.Stat(tokenpath)
+			info, err := os.Stat(tokenpath)
 			if err == nil {
-				return true, tokenpath
-
+				if info.Mode().IsRegular() {
+					if info.Mode()&0111 != 0 {
+						return true, tokenpath
+					}
+				}
 			}
 		}
 		return false, ""
@@ -119,10 +122,13 @@ func findExecutable(token string) (bool, string) {
 
 			// fullPath := filepath.Join(dir, file.Name())
 			// fmt.Println("File:", fullPath)
-			_, err := os.Stat(tokenpath)
+			info, err := os.Stat(tokenpath)
 			if err == nil {
-				return true, tokenpath
-
+				if info.Mode().IsRegular() {
+					if info.Mode()&0111 != 0 {
+						return true, tokenpath
+					}
+				}
 			}
 		}
 
