@@ -106,11 +106,10 @@ func findExecutable(token string) (bool, string) {
 
 				}
 			}
-			return false, ""
-
-			// break
-
 		}
+		return false, ""
+
+		// break
 
 		// }
 	} else {
@@ -138,11 +137,11 @@ func findExecutable(token string) (bool, string) {
 
 				}
 			}
-			return false, ""
-
-			// break
-
 		}
+
+		// break
+
+		return false, ""
 
 	}
 
