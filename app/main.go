@@ -46,10 +46,10 @@ func main() {
 		default:
 			// fmt.Print(tokens[0])
 			// fmt.Println(": command not found")
-			foundExecutable, pathOfExecutable := findExecutable(tokens[0])
+			foundExecutable, _ := findExecutable(tokens[0])
 			if foundExecutable {
 				args := tokens[1:]
-				cmd := exec.Command(pathOfExecutable, args...)
+				cmd := exec.Command(tokens[0], args...)
 				cmd.Stdin = os.Stdin
 				cmd.Stdout = os.Stdout
 				cmd.Stderr = os.Stderr
