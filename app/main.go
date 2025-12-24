@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"slices"
@@ -43,8 +44,10 @@ func main() {
 		case "exit":
 
 		default:
-			fmt.Print(tokens[0])
-			fmt.Println(": command not found")
+			// fmt.Print(tokens[0])
+			// fmt.Println(": command not found")
+			args := tokens[1:]
+			exec.Command(tokens[0], args...)
 
 		}
 
@@ -85,15 +88,13 @@ func findExecutable(token string) (bool, string) {
 	if cur_os == "windows" {
 		directories := strings.Split(pathEnv, ";")
 
-		// find last / in each dir and substring past that to check if it matches token
-		// if yes , return the path else dir: not found
+		// // break pathenv into different directories
+		// iterate on each dir and check if tokenpath exists in that dir
+		// check if its regular file and is executable
 		for _, dir := range directories {
 
 			// fmt.Println(dir)
 			tokenpath := filepath.Join(dir + "/" + token)
-
-			// fullPath := filepath.Join(dir, file.Name())
-			// fmt.Println("File:", fullPath)
 			info, err := os.Stat(tokenpath)
 			if err == nil {
 				if info.Mode().IsRegular() {
@@ -110,18 +111,9 @@ func findExecutable(token string) (bool, string) {
 		// }
 	} else {
 		directories := strings.Split(pathEnv, ":")
-		// find last / in each dir and substring past that to check if it matches token
-		// if yes , return the path else dir: not found
-
-		// find last / in each dir and substring past that to check if it matches token
-		// if yes , return the path else dir: not found
 		for _, dir := range directories {
 
-			// fmt.Println(dir)
 			tokenpath := filepath.Join(dir + "/" + token)
-
-			// fullPath := filepath.Join(dir, file.Name())
-			// fmt.Println("File:", fullPath)
 			info, err := os.Stat(tokenpath)
 			if err == nil {
 				if info.Mode().IsRegular() {
