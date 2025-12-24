@@ -92,19 +92,12 @@ func findExecutable(token string) (bool, string) {
 			// fmt.Println(dir)
 			tokenpath := filepath.Join(dir, token)
 
-			files, err := os.ReadDir(dir)
-			if err != nil {
-				fmt.Println(err)
-			}
-			for _, file := range files {
-				fullPath := filepath.Join(dir, file.Name())
-				// fmt.Println("File:", fullPath)
-				_, err = os.Stat(tokenpath)
-				if err == nil {
-					fmt.Println(tokenpath, fullPath)
-					return true, fullPath
+			// fullPath := filepath.Join(dir, file.Name())
+			// fmt.Println("File:", fullPath)
+			_, err := os.Stat(tokenpath)
+			if err == nil {
+				return true, tokenpath
 
-				}
 			}
 		}
 		return false, ""
@@ -124,26 +117,16 @@ func findExecutable(token string) (bool, string) {
 			// fmt.Println(dir)
 			tokenpath := filepath.Join(dir + "/" + token)
 
-			files, err := os.ReadDir(dir)
-			if err != nil {
-				fmt.Println(err)
-			}
-			for _, file := range files {
-				fullPath := filepath.Join(dir, file.Name())
-				// fmt.Println("File:", fullPath)
-				_, err = os.Stat(tokenpath)
-				if err == nil {
-					return true, fullPath
+			// fullPath := filepath.Join(dir, file.Name())
+			// fmt.Println("File:", fullPath)
+			_, err := os.Stat(tokenpath)
+			if err == nil {
+				return true, tokenpath
 
-				}
 			}
 		}
 
 		// break
-
 		return false, ""
-
 	}
-
-	return false, "nopath"
 }
