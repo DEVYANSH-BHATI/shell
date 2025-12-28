@@ -39,7 +39,10 @@ func main() {
 
 		case "type":
 			typee(strings.ToLower(tokens[1]))
-			// findExecutable(strings.ToLower((tokens[1])))
+
+		case "pwd":
+			pwd, _ := os.Getwd()
+			fmt.Println(pwd)
 
 		case "exit":
 
