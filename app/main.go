@@ -45,9 +45,27 @@ func main() {
 			fmt.Println(pwd)
 
 		case "cd":
-			err := os.Chdir(tokens[1])
+			var err error
+			if tokens[1] == "~" {
+				homepath := os.Getenv("HOME")
+				err = os.Chdir(homepath)
+			} else {
+				err = os.Chdir(tokens[1])
+			}
 			if err != nil {
 				fmt.Println("cd: " + tokens[1] + ": No such file or directory")
+			}
+
+		case "ls":
+			dir, _ := os.Getwd()
+			directories, err := os.ReadDir(dir)
+			// err := cmd.Run()
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				for _, dir := range directories {
+					fmt.Println(dir.Name())
+				}
 			}
 
 		case "exit":
@@ -86,7 +104,7 @@ func echo(tokens []string) {
 }
 
 func typee(token string) {
-	cmds := []string{"echo", "exit", "type", "pwd", "cd"}
+	cmds := []string{"echo", "exit", "type", "pwd", "cd", "ls"}
 	if slices.Contains(cmds, token) {
 		fmt.Println(token, "is a shell builtin")
 		return
