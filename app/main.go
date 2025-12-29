@@ -44,11 +44,15 @@ func main() {
 			pwd, _ := os.Getwd()
 			fmt.Println(pwd)
 
+		case "cd":
+			err := os.Chdir(tokens[1])
+			if err != nil {
+				fmt.Println("cd:" + tokens[1] + ": No such file or directory")
+			}
+
 		case "exit":
 
 		default:
-			// fmt.Print(tokens[0])
-			// fmt.Println(": command not found")
 			foundExecutable, _ := findExecutable(tokens[0])
 			if foundExecutable {
 				args := tokens[1:]
@@ -82,7 +86,7 @@ func echo(tokens []string) {
 }
 
 func typee(token string) {
-	cmds := []string{"echo", "exit", "type", "pwd"}
+	cmds := []string{"echo", "exit", "type", "pwd", "cd"}
 	if slices.Contains(cmds, token) {
 		fmt.Println(token, "is a shell builtin")
 		return
