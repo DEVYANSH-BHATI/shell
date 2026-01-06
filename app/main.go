@@ -36,7 +36,6 @@ func main() {
 		if len(tokens) == 0 {
 			continue
 		}
-
 		switch strings.ToLower(tokens[0]) {
 		case "echo":
 			echo(tokens)
@@ -109,6 +108,7 @@ func tokenize(cmd string) []string {
 	inSingleQuote := false
 	var currentToken strings.Builder
 	for _, char := range cmd {
+
 		if char == '\'' {
 			inSingleQuote = !inSingleQuote
 			continue
@@ -118,9 +118,11 @@ func tokenize(cmd string) []string {
 			if inSingleQuote {
 				currentToken.WriteRune(char)
 				continue
-			} else if currentToken.Len() > 0 {
-				tokens = append(tokens, currentToken.String())
-				currentToken.Reset()
+			} else {
+				if currentToken.Len() > 0 {
+					tokens = append(tokens, currentToken.String())
+					currentToken.Reset()
+				}
 				continue
 			}
 		}
