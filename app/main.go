@@ -109,27 +109,22 @@ func tokenize(cmd string) []string {
 	inSingleQuote := false
 	var currentToken strings.Builder
 	for _, char := range cmd {
-		if char == '\'' && inSingleQuote == false {
-			inSingleQuote = true
+		if char == '\'' {
+			inSingleQuote = !inSingleQuote
 			continue
 		}
 
-		if inSingleQuote {
-			if char == '\'' {
-				inSingleQuote = false
+		if char == ' ' || char == '\t' {
+			if inSingleQuote {
+				currentToken.WriteRune(char)
+				continue
+			} else if currentToken.Len() > 0 {
+				tokens = append(tokens, currentToken.String())
+				currentToken.Reset()
 				continue
 			}
-			currentToken.WriteRune(char)
-			continue
 		}
-		if char != ' ' || char != '\t' {
-			currentToken.WriteRune(char)
-			continue
-		}
-		if currentToken.Len() > 0 {
-			tokens = append(tokens, currentToken.String())
-			currentToken.Reset()
-		}
+		currentToken.WriteRune(char)
 	}
 	if currentToken.Len() > 0 {
 		tokens = append(tokens, currentToken.String())
