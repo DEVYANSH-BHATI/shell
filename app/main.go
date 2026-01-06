@@ -95,7 +95,7 @@ func main() {
 
 		}
 
-		if cmd == "exit" {
+		if strings.ToLower(cmd) == "exit" {
 			break
 		}
 
