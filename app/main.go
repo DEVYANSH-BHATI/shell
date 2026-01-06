@@ -27,7 +27,11 @@ func main() {
 		}
 		cmd = scanner.Text()
 
-		tokens := strings.Fields(cmd)
+		// tokens := strings.Fields(cmd)
+		tokens := tokenize(cmd)
+		// for _, token := range tokens {
+		// 	fmt.Println(token)
+		// }
 
 		if len(tokens) == 0 {
 			continue
@@ -99,8 +103,75 @@ func main() {
 	}
 }
 
+// func tokenize(cmd string) []string {
+// 	//tokenize without strings.fields
+// 	tokens := []string{}
+// 	inSingleQuote := false
+// 	currentToken := ""
+// 	for _, char := range cmd {
+// 		if char == '\'' && inSingleQuote == false {
+// 			inSingleQuote = true
+// 			continue
+// 		}
+
+// 		if inSingleQuote {
+// 			if char == '\'' {
+// 				inSingleQuote = false
+// 				continue
+// 			}
+// 			// currentToken += string(char)
+// 			currentToken = append(currentToken, string(char))
+// 			continue
+// 		}
+// 		if char != ' ' {
+// 			currentToken += string(char)
+// 			continue
+// 		}
+// 		if currentToken != "" {
+// 			tokens = append(tokens, currentToken)
+// 			currentToken = ""
+// 		}
+// 	}
+// 	if currentToken != "" {
+// 		tokens = append(tokens, currentToken)
+// 		currentToken = ""
+// 	}
+// 	return tokens
+// }
+
+func tokenize(cmd string) []string {
+	var tokens []string
+	var current strings.Builder
+	inSingleQuote := false
+
+	for _, ch := range cmd {
+		switch ch {
+		case '\'':
+			inSingleQuote = !inSingleQuote
+
+		case ' ', '\t':
+			if inSingleQuote {
+				current.WriteRune(ch)
+			} else if current.Len() > 0 {
+				tokens = append(tokens, current.String())
+				current.Reset()
+			}
+
+		default:
+			current.WriteRune(ch)
+		}
+	}
+
+	if current.Len() > 0 {
+		tokens = append(tokens, current.String())
+	}
+
+	return tokens
+}
+
 func echo(tokens []string) {
-	println(strings.Join(tokens[1:], " "))
+
+	println(string(strings.Join(tokens[1:], " ")))
 }
 
 func typee(token string) {
