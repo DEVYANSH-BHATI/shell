@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
-	"runtime"
 	"slices"
 	"strings"
 )
 
+// go run main.go executableHandling.go parser.go
 // Ensures gofmt doesn't remove the "fmt" import in stage 1 (feel free to remove this!)
 var _ = fmt.Print
 
@@ -102,69 +101,6 @@ func main() {
 	}
 }
 
-func tokenize(cmd string) []string {
-	//tokenize without strings.fields
-	tokens := []string{}
-	inSingleQuote := false
-	var currentToken strings.Builder
-	for _, char := range cmd {
-
-		if char == '\'' {
-			inSingleQuote = !inSingleQuote
-			continue
-		}
-
-		if char == ' ' || char == '\t' {
-			if inSingleQuote {
-				currentToken.WriteRune(char)
-				continue
-			} else {
-				if currentToken.Len() > 0 {
-					tokens = append(tokens, currentToken.String())
-					currentToken.Reset()
-				}
-				continue
-			}
-		}
-		currentToken.WriteRune(char)
-	}
-	if currentToken.Len() > 0 {
-		tokens = append(tokens, currentToken.String())
-		currentToken.Reset()
-	}
-	return tokens
-}
-
-// func tokenize(cmd string) []string {
-// 	var tokens []string
-// 	var current strings.Builder
-// 	inSingleQuote := false
-
-// 	for _, ch := range cmd {
-// 		switch ch {
-// 		case '\'':
-// 			inSingleQuote = !inSingleQuote
-
-// 		case ' ', '\t':
-// 			if inSingleQuote {
-// 				current.WriteRune(ch)
-// 			} else if current.Len() > 0 {
-// 				tokens = append(tokens, current.String())
-// 				current.Reset()
-// 			}
-
-// 		default:
-// 			current.WriteRune(ch)
-// 		}
-// 	}
-
-// 	if current.Len() > 0 {
-// 		tokens = append(tokens, current.String())
-// 	}
-
-// 	return tokens
-// }
-
 func echo(tokens []string) {
 
 	println(string(strings.Join(tokens[1:], " ")))
@@ -184,55 +120,4 @@ func typee(token string) {
 
 	}
 
-}
-
-func findExecutable(token string) (bool, string) {
-	cur_os := runtime.GOOS
-	pathEnv := os.Getenv("PATH")
-	if pathEnv == "" {
-		fmt.Println("PATH environment variable is not set.")
-		return false, "emptypath"
-	}
-	if cur_os == "windows" {
-		directories := strings.Split(pathEnv, ";")
-
-		// // break pathenv into different directories
-		// iterate on each dir and check if tokenpath exists in that dir
-		// check if its regular file and is executable
-		for _, dir := range directories {
-
-			// fmt.Println(dir)
-			tokenpath := filepath.Join(dir + "/" + token)
-			info, err := os.Stat(tokenpath)
-			if err == nil {
-				if info.Mode().IsRegular() {
-					if info.Mode()&0111 != 0 {
-						return true, tokenpath
-					}
-				}
-			}
-		}
-		return false, ""
-
-		// break
-
-		// }
-	} else {
-		directories := strings.Split(pathEnv, ":")
-		for _, dir := range directories {
-
-			tokenpath := filepath.Join(dir + "/" + token)
-			info, err := os.Stat(tokenpath)
-			if err == nil {
-				if info.Mode().IsRegular() {
-					if info.Mode()&0111 != 0 {
-						return true, tokenpath
-					}
-				}
-			}
-		}
-
-		// break
-		return false, ""
-	}
 }
