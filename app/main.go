@@ -124,84 +124,6 @@ func typee(token string) {
 
 }
 
-// package main
-
-// import "strings"
-
-func tokenize(cmd string) []string {
-	//tokenize without strings.fields
-	tokens := []string{}
-	inSingleQuote := false
-	inDoubleQuote := false
-	var currentToken strings.Builder
-	for _, char := range cmd {
-		if char == '"' {
-			inDoubleQuote = !inDoubleQuote
-			continue
-		}
-
-		if inDoubleQuote {
-			currentToken.WriteRune(char)
-			continue
-		}
-
-		if char == '\'' {
-			inSingleQuote = !inSingleQuote
-			continue
-		}
-
-		if char == ' ' || char == '\t' {
-			if inSingleQuote {
-				currentToken.WriteRune(char)
-				continue
-			} else {
-				if currentToken.Len() > 0 {
-					tokens = append(tokens, currentToken.String())
-					currentToken.Reset()
-				}
-				continue
-			}
-		}
-
-		currentToken.WriteRune(char)
-	}
-	if currentToken.Len() > 0 {
-		tokens = append(tokens, currentToken.String())
-		currentToken.Reset()
-	}
-	return tokens
-}
-
-// func tokenize(cmd string) []string {
-// 	var tokens []string
-// 	var current strings.Builder
-// 	inSingleQuote := false
-
-// 	for _, ch := range cmd {
-// 		switch ch {
-// 		case '\'':
-// 			inSingleQuote = !inSingleQuote
-
-// 		case ' ', '\t':
-// 			if inSingleQuote {
-// 				current.WriteRune(ch)
-// 			} else if current.Len() > 0 {
-// 				tokens = append(tokens, current.String())
-// 				current.Reset()
-// 			}
-
-// 		default:
-// 			current.WriteRune(ch)
-// 		}
-// 	}
-
-// 	if current.Len() > 0 {
-// 		tokens = append(tokens, current.String())
-// 	}
-
-// 	return tokens
-// }
-
 func findExecutable(token string) (bool, string) {
 	cur_os := runtime.GOOS
 	pathEnv := os.Getenv("PATH")
@@ -251,4 +173,59 @@ func findExecutable(token string) (bool, string) {
 		// break
 		return false, ""
 	}
+}
+
+func tokenize(cmd string) []string {
+	//tokenize without strings.fields
+	tokens := []string{}
+	inSingleQuote := false
+	inDoubleQuote := false
+	escapedCharacter := false
+	var currentToken strings.Builder
+	for _, char := range cmd {
+
+		if escapedCharacter {
+			currentToken.WriteRune(char)
+			escapedCharacter = false
+			continue
+		}
+		if char == '"' {
+			inDoubleQuote = !inDoubleQuote
+			continue
+		}
+
+		if inDoubleQuote {
+			currentToken.WriteRune(char)
+			continue
+		}
+
+		if !inDoubleQuote && char == '\\' {
+			escapedCharacter = true
+			continue
+		}
+		if char == '\'' {
+			inSingleQuote = !inSingleQuote
+			continue
+		}
+
+		if char == ' ' || char == '\t' {
+			if inSingleQuote {
+				currentToken.WriteRune(char)
+				continue
+			} else {
+				if currentToken.Len() > 0 {
+					tokens = append(tokens, currentToken.String())
+					currentToken.Reset()
+				}
+				continue
+			}
+		}
+
+		currentToken.WriteRune(char)
+	}
+	if currentToken.Len() > 0 {
+		tokens = append(tokens, currentToken.String())
+		currentToken.Reset()
+	}
+	return tokens
 }
