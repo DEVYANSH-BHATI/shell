@@ -195,6 +195,11 @@ func tokenize(cmd string) []string {
 			continue
 		}
 
+		if char == '\'' {
+			inSingleQuote = !inSingleQuote
+			continue
+		}
+
 		if inDoubleQuote || inSingleQuote {
 			currentToken.WriteRune(char)
 			continue
@@ -204,10 +209,10 @@ func tokenize(cmd string) []string {
 			escapedCharacter = true
 			continue
 		}
-		if char == '\'' {
-			inSingleQuote = !inSingleQuote
-			continue
-		}
+		// if char == '\'' {
+		// 	inSingleQuote = !inSingleQuote
+		// 	continue
+		// }
 
 		if char == ' ' || char == '\t' {
 			if inSingleQuote {
