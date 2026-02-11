@@ -200,6 +200,10 @@ func tokenize(cmd string) []string {
 		}
 
 		if char == '\'' {
+			if inDoubleQuote {
+				currentToken.WriteRune(char)
+				continue
+			}
 			inSingleQuote = !inSingleQuote
 			continue
 		}
