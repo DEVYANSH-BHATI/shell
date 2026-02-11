@@ -189,12 +189,13 @@ func tokenize(cmd string) []string {
 			escapedCharacter = false
 			continue
 		}
+
 		if char == '"' {
 			inDoubleQuote = !inDoubleQuote
 			continue
 		}
 
-		if inDoubleQuote {
+		if inDoubleQuote || inSingleQuote {
 			currentToken.WriteRune(char)
 			continue
 		}
