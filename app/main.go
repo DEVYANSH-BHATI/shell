@@ -204,7 +204,7 @@ func tokenize(cmd string) []string {
 				continue
 			}
 			if char == '"' || char == '\\' || char == '$' || char == '\n' || char == ' ' {
-				fmt.Println("spl", char)
+				// fmt.Println("spl", char)
 				currentToken.WriteRune(char)
 				escapedCharacter = false
 				continue
