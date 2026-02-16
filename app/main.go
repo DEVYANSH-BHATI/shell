@@ -217,7 +217,7 @@ func tokenize(cmd string) []string {
 			continue
 		}
 
-		if !inSingleQuote && char == '\'' {
+		if inSingleQuote && char == '\'' {
 			if inDoubleQuote {
 				currentToken.WriteRune(char)
 				continue
