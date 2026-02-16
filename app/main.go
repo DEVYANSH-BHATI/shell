@@ -75,10 +75,10 @@ func main() {
 		case "exit":
 
 		default:
-			foundExecutable, _ := findExecutable(tokens[0])
+			foundExecutable, pathOfExecutable := findExecutable(tokens[0])
 			if foundExecutable {
 				args := tokens[1:]
-				cmd := exec.Command(tokens[0], args...)
+				cmd := exec.Command(pathOfExecutable, args...)
 				cmd.Stdin = os.Stdin
 				cmd.Stdout = os.Stdout
 				cmd.Stderr = os.Stderr
@@ -186,6 +186,10 @@ func tokenize(cmd string) []string {
 
 		// single quote overpower any escapes and everything is treated as literalchar
 		if inSingleQuote {
+			if char == '\'' {
+				inSingleQuote = false
+				continue
+			}
 			currentToken.WriteRune(char)
 			continue
 		}
