@@ -82,7 +82,7 @@ func main() {
 				cmd.Stdin = os.Stdin
 				cmd.Stdout = os.Stdout
 				cmd.Stderr = os.Stderr
-
+				cmd.Args[0] = tokens[0]
 				err := cmd.Run()
 				if err != nil {
 					fmt.Println(err)
