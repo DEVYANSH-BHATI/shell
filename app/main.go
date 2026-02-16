@@ -252,7 +252,7 @@ func tokenize(cmd string) []string {
 		// }
 
 		if char == ' ' || char == '\t' {
-			if inSingleQuote {
+			if inSingleQuote || inDoubleQuote {
 				currentToken.WriteRune(char)
 				continue
 			} else {
