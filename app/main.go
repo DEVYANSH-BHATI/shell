@@ -195,7 +195,7 @@ func tokenize(cmd string) []string {
 		// 	escapedCharacter = false
 		// 	continue
 		// }
-		fmt.Println(currentToken.String(), string(char), escapedCharacter, inDoubleQuote, inSingleQuote)
+		// fmt.Println(currentToken.String(), string(char), escapedCharacter, inDoubleQuote, inSingleQuote)
 		if escapedCharacter {
 			// ", \, $, `, and newline
 			if !inSingleQuote && !inDoubleQuote {
