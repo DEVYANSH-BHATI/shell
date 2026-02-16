@@ -190,7 +190,7 @@ func tokenize(cmd string) []string {
 		// 	continue
 		// }
 		// fmt.Println(currentToken.String(), string(char), escapedCharacter, inDoubleQuote, inSingleQuote)
-		if escapedCharacter && inSingleQuote {
+		if escapedCharacter && inDoubleQuote {
 			// ", \, $, `, and newline
 			if char == '"' || char == '\\' || char == '$' || char == '\n' {
 				currentToken.WriteRune(char)
@@ -221,6 +221,10 @@ func tokenize(cmd string) []string {
 		// Expected: "world\"examplescript\"shell"
 		//Received: "'world"examplescript"shell'"
 		// escape character coming next
+
+		//      echo "world'hello'\\'script"
+		// Expected: "world'hello'\'script"
+		// Received: "world'hello''script"
 		if char == '\\' {
 			if inSingleQuote {
 				currentToken.WriteRune(char)
