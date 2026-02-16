@@ -184,25 +184,18 @@ func tokenize(cmd string) []string {
 	var currentToken strings.Builder
 	for _, char := range cmd {
 
-		if inSingleQuote {
-			currentToken.WriteRune(char)
-			continue
-		}
+		// if escapedCharacter {
+		// 	currentToken.WriteRune(char)
+		// 	escapedCharacter = false
+		// 	continue
+		// }
 
-		if escapedCharacter {
-			currentToken.WriteRune(char)
-			escapedCharacter = false
-			continue
-		}
-
-		if escapedCharacter {
+		if escapedCharacter && inDoubleQuote {
 			// ", \, $, `, and newline
 			if char == '"' || char == '\\' || char == '$' || char == '\n' {
-				if escapedCharacter {
-					currentToken.WriteRune(char)
-					escapedCharacter = false
-					continue
-				}
+				currentToken.WriteRune(char)
+				escapedCharacter = false
+				continue
 			}
 		}
 
@@ -215,7 +208,7 @@ func tokenize(cmd string) []string {
 			continue
 		}
 
-		if inSingleQuote && char == '\'' {
+		if char == '\'' {
 			if inDoubleQuote {
 				currentToken.WriteRune(char)
 				continue
@@ -224,13 +217,20 @@ func tokenize(cmd string) []string {
 			continue
 		}
 
+		// echo 'world\"examplescript\"shell'
+		// Expected: "world\"examplescript\"shell"
+		//Received: "'world"examplescript"shell'"
 		// escape character coming next
 		if char == '\\' {
+			if inSingleQuote {
+				currentToken.WriteRune(char)
+				continue
+			}
 			escapedCharacter = true
 			continue
 		}
 
-		if inDoubleQuote {
+		if inDoubleQuote || inSingleQuote {
 			currentToken.WriteRune(char)
 			continue
 		}
