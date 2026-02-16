@@ -184,6 +184,11 @@ func tokenize(cmd string) []string {
 	var currentToken strings.Builder
 	for _, char := range cmd {
 
+		if inSingleQuote {
+			currentToken.WriteRune(char)
+			continue
+		}
+
 		if escapedCharacter {
 			currentToken.WriteRune(char)
 			escapedCharacter = false
@@ -191,6 +196,7 @@ func tokenize(cmd string) []string {
 		}
 
 		if escapedCharacter {
+			// ", \, $, `, and newline
 			if char == '"' || char == '\\' || char == '$' || char == '\n' {
 				if escapedCharacter {
 					currentToken.WriteRune(char)
@@ -200,20 +206,12 @@ func tokenize(cmd string) []string {
 			}
 		}
 
-		// ", \, $, `, and newline
-
 		if char == '"' {
 			if inSingleQuote {
 				currentToken.WriteRune(char)
 				continue
 			}
 			inDoubleQuote = !inDoubleQuote
-			continue
-		}
-
-		// escape character coming next
-		if char == '\\' {
-			escapedCharacter = true
 			continue
 		}
 
@@ -226,7 +224,13 @@ func tokenize(cmd string) []string {
 			continue
 		}
 
-		if inDoubleQuote || inSingleQuote {
+		// escape character coming next
+		if char == '\\' {
+			escapedCharacter = true
+			continue
+		}
+
+		if inDoubleQuote {
 			currentToken.WriteRune(char)
 			continue
 		}
