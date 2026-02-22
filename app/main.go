@@ -43,7 +43,7 @@ func main() {
 		redirectionexists := slices.Index(tokens, ">")
 		if redirectionexists != -1 {
 			tokens_copy = tokens[:redirectionexists]
-			if redirectionexists+1 >= len(tokens_copy) {
+			if redirectionexists+1 >= len(tokens) {
 				fmt.Println("syntax error")
 			}
 			filepath_redirection = tokens[redirectionexists+1]
