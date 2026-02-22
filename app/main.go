@@ -41,6 +41,9 @@ func main() {
 		tokens_copy := tokens
 		var filepath_redirection string
 		redirectionexists := slices.Index(tokens, ">")
+		if redirectionexists == -1 {
+			redirectionexists = slices.Index(tokens, "1>")
+		}
 		if redirectionexists != -1 {
 			tokens_copy = tokens[:redirectionexists]
 			if redirectionexists+1 >= len(tokens) {
@@ -84,17 +87,17 @@ func main() {
 				fmt.Fprintln(output, "cd: "+tokens_copy[1]+": No such file or directory")
 			}
 
-		case "ls":
-			dir, _ := os.Getwd()
-			directories, err := os.ReadDir(dir)
-			// err := cmd.Run()
-			if err != nil {
-				fmt.Fprintln(output, err)
-			} else {
-				for _, dir := range directories {
-					fmt.Fprintln(output, dir.Name())
-				}
-			}
+		// case "ls":
+		// 	dir, _ := os.Getwd()
+		// 	directories, err := os.ReadDir(dir)
+		// 	// err := cmd.Run()
+		// 	if err != nil {
+		// 		fmt.Fprintln(output, err)
+		// 	} else {
+		// 		for _, dir := range directories {
+		// 			fmt.Fprintln(output, dir.Name())
+		// 		}
+		// 	}
 
 		case "exit":
 
@@ -107,10 +110,11 @@ func main() {
 				cmd.Stdout = output
 				cmd.Stderr = os.Stderr
 				cmd.Args[0] = tokens_copy[0]
-				err := cmd.Run()
-				if err != nil {
-					fmt.Println(err)
-				}
+				cmd.Run()
+				// err := cmd.Run()
+				// if err != nil {
+				// 	fmt.Println(err)
+				// }
 			} else {
 				fmt.Print(tokens_copy[0])
 				fmt.Println(": command not found")
