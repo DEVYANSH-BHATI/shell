@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -34,30 +35,53 @@ func main() {
 		// 	fmt.Println(token)
 		// }
 
-		if len(tokens) == 0 {
+		var output io.Writer = os.Stdout
+
+		var openfile *os.File
+		tokens_copy := tokens
+		var filepath_redirection string
+		redirectionexists := slices.Index(tokens, ">")
+		if redirectionexists != -1 {
+			tokens_copy = tokens[:redirectionexists]
+			if redirectionexists+1 >= len(tokens_copy) {
+				fmt.Println("syntax error")
+			}
+			filepath_redirection = tokens[redirectionexists+1]
+			openfile, err := os.OpenFile(filepath_redirection,
+				os.O_CREATE|os.O_WRONLY|os.O_TRUNC,
+				0644)
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
+			output = openfile
+
+		}
+
+		if len(tokens_copy) == 0 {
 			continue
 		}
-		switch strings.ToLower(tokens[0]) {
+		switch strings.ToLower(tokens_copy[0]) {
 		case "echo":
-			echo(tokens)
+			echo(tokens_copy, output)
 
 		case "type":
-			typee(strings.ToLower(tokens[1]))
+			typee(strings.ToLower(tokens_copy[1]), output)
 
 		case "pwd":
 			pwd, _ := os.Getwd()
-			fmt.Println(pwd)
+			fmt.Fprintln(output, pwd)
 
 		case "cd":
 			var err error
-			if tokens[1] == "~" {
+			if tokens_copy[1] == "~" {
 				homepath := os.Getenv("HOME")
 				err = os.Chdir(homepath)
 			} else {
-				err = os.Chdir(tokens[1])
+				err = os.Chdir(tokens_copy[1])
 			}
 			if err != nil {
-				fmt.Println("cd: " + tokens[1] + ": No such file or directory")
+				fmt.Fprintln(output, "cd: "+tokens_copy[1]+": No such file or directory")
 			}
 
 		case "ls":
@@ -65,35 +89,38 @@ func main() {
 			directories, err := os.ReadDir(dir)
 			// err := cmd.Run()
 			if err != nil {
-				fmt.Println(err)
+				fmt.Fprintln(output, err)
 			} else {
 				for _, dir := range directories {
-					fmt.Println(dir.Name())
+					fmt.Fprintln(output, dir.Name())
 				}
 			}
 
 		case "exit":
 
 		default:
-			foundExecutable, pathOfExecutable := findExecutable(tokens[0])
+			foundExecutable, pathOfExecutable := findExecutable(tokens_copy[0])
 			if foundExecutable {
-				args := tokens[1:]
+				args := tokens_copy[1:]
 				cmd := exec.Command(pathOfExecutable, args...)
 				cmd.Stdin = os.Stdin
-				cmd.Stdout = os.Stdout
+				cmd.Stdout = output
 				cmd.Stderr = os.Stderr
-				cmd.Args[0] = tokens[0]
+				cmd.Args[0] = tokens_copy[0]
 				err := cmd.Run()
 				if err != nil {
 					fmt.Println(err)
 				}
 			} else {
-				fmt.Print(tokens[0])
+				fmt.Print(tokens_copy[0])
 				fmt.Println(": command not found")
 			}
 
 			// break
 
+		}
+		if openfile != nil {
+			openfile.Close()
 		}
 
 		if strings.ToLower(cmd) == "exit" {
@@ -103,22 +130,22 @@ func main() {
 	}
 }
 
-func echo(tokens []string) {
+func echo(tokens []string, output io.Writer) {
 
-	println(string(strings.Join(tokens[1:], " ")))
+	fmt.Fprintln(output, string(strings.Join(tokens[1:], " ")))
 }
 
-func typee(token string) {
+func typee(token string, output io.Writer) {
 	cmds := []string{"echo", "exit", "type", "pwd", "cd", "ls"}
 	if slices.Contains(cmds, token) {
-		fmt.Println(token, "is a shell builtin")
+		fmt.Fprintln(output, token, "is a shell builtin")
 		return
 	}
 	foundExecutable, pathOfExecutable := findExecutable(token)
 	if foundExecutable {
-		fmt.Println(token, "is", pathOfExecutable)
+		fmt.Fprintln(output, token, "is", pathOfExecutable)
 	} else {
-		fmt.Println(token + ": not found")
+		fmt.Fprintln(output, token+": not found")
 
 	}
 
@@ -175,6 +202,7 @@ func findExecutable(token string) (bool, string) {
 	}
 }
 
+// custom parser
 func tokenize(cmd string) []string {
 	//tokenize without strings.fields
 	tokens := []string{}
@@ -194,11 +222,7 @@ func tokenize(cmd string) []string {
 			continue
 		}
 
-		// if escapedCharacter {
-		// 	currentToken.WriteRune(char)
-		// 	escapedCharacter = false
-		// 	continue
-		// }
+		// fmt.Println(currentToken.String())
 		// fmt.Println(currentToken.String(), string(char), escapedCharacter, inDoubleQuote, inSingleQuote)
 		if escapedCharacter {
 			// ", \, $, `, and newline
@@ -225,22 +249,10 @@ func tokenize(cmd string) []string {
 		}
 
 		if char == '"' {
-			// if inSingleQuote {
-			// 	currentToken.WriteRune(char)
-			// 	continue
-			// }
 			inDoubleQuote = !inDoubleQuote
 			continue
 		}
 
-		// echo 'world\"examplescript\"shell'
-		// Expected: "world\"examplescript\"shell"
-		//Received: "'world"examplescript"shell'"
-		// escape character coming next
-
-		//      echo "world'hello'\\'script"
-		// Expected: "world'hello'\'script"
-		// Received: "world'hello''script"
 		if char == '\\' {
 			if inSingleQuote {
 				currentToken.WriteRune(char)
@@ -249,11 +261,6 @@ func tokenize(cmd string) []string {
 			escapedCharacter = true
 			continue
 		}
-
-		// if inDoubleQuote {
-		// 	currentToken.WriteRune(char)
-		// 	continue
-		// }
 
 		if char == ' ' || char == '\t' {
 			if inSingleQuote || inDoubleQuote {
