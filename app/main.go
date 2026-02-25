@@ -35,12 +35,32 @@ func main() {
 		// 	fmt.Println(token)
 		// }
 
+		// Redirection logic :
+		// if command has 1> or > means out needs redirection
+		// so we will define new io.writer (output) by default same as os.stdout that is out cli
+		// but if > is detected we take the filename from command and open the file for edit 2
 		var output io.Writer = os.Stdout
-
+		var erroutput io.Writer = os.Stderr
+		var err_openfile *os.File
 		var openfile *os.File
 		tokens_copy := tokens
 		var filepath_redirection string
 		redirectionexists := slices.Index(tokens, ">")
+		stderr_redirection_exists := slices.Index(tokens, "2>")
+		var stderr_filepath_redirection string
+		if stderr_redirection_exists != -1 {
+			tokens_copy = tokens[:stderr_redirection_exists]
+			stderr_filepath_redirection = tokens[stderr_redirection_exists+1]
+			err_openfile, err := os.OpenFile(stderr_filepath_redirection,
+				os.O_CREATE|os.O_WRONLY|os.O_TRUNC,
+				0644)
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
+			erroutput = err_openfile
+
+		}
 		if redirectionexists == -1 {
 			redirectionexists = slices.Index(tokens, "1>")
 		}
@@ -69,7 +89,7 @@ func main() {
 			echo(tokens_copy, output)
 
 		case "type":
-			typee(strings.ToLower(tokens_copy[1]), output)
+			typee(strings.ToLower(tokens_copy[1]), output, erroutput)
 
 		case "pwd":
 			pwd, _ := os.Getwd()
@@ -87,18 +107,6 @@ func main() {
 				fmt.Fprintln(output, "cd: "+tokens_copy[1]+": No such file or directory")
 			}
 
-		// case "ls":
-		// 	dir, _ := os.Getwd()
-		// 	directories, err := os.ReadDir(dir)
-		// 	// err := cmd.Run()
-		// 	if err != nil {
-		// 		fmt.Fprintln(output, err)
-		// 	} else {
-		// 		for _, dir := range directories {
-		// 			fmt.Fprintln(output, dir.Name())
-		// 		}
-		// 	}
-
 		case "exit":
 
 		default:
@@ -108,13 +116,10 @@ func main() {
 				cmd := exec.Command(pathOfExecutable, args...)
 				cmd.Stdin = os.Stdin
 				cmd.Stdout = output
-				cmd.Stderr = os.Stderr
+				cmd.Stderr = erroutput
 				cmd.Args[0] = tokens_copy[0]
 				cmd.Run()
-				// err := cmd.Run()
-				// if err != nil {
-				// 	fmt.Println(err)
-				// }
+
 			} else {
 				fmt.Print(tokens_copy[0])
 				fmt.Println(": command not found")
@@ -125,6 +130,9 @@ func main() {
 		}
 		if openfile != nil {
 			openfile.Close()
+		}
+		if err_openfile != nil {
+			err_openfile.Close()
 		}
 
 		if strings.ToLower(cmd) == "exit" {
@@ -139,7 +147,7 @@ func echo(tokens []string, output io.Writer) {
 	fmt.Fprintln(output, string(strings.Join(tokens[1:], " ")))
 }
 
-func typee(token string, output io.Writer) {
+func typee(token string, output io.Writer, erroutput io.Writer) {
 	cmds := []string{"echo", "exit", "type", "pwd", "cd", "ls"}
 	if slices.Contains(cmds, token) {
 		fmt.Fprintln(output, token, "is a shell builtin")
@@ -149,7 +157,7 @@ func typee(token string, output io.Writer) {
 	if foundExecutable {
 		fmt.Fprintln(output, token, "is", pathOfExecutable)
 	} else {
-		fmt.Fprintln(output, token+": not found")
+		fmt.Fprintln(erroutput, token+": not found")
 
 	}
 
