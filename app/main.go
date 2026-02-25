@@ -45,55 +45,9 @@ func main() {
 
 		command := parsecommand(tokens)
 
-		if len(command.Args) == 0 {
-			continue
-		}
-		switch strings.ToLower(command.Args[0]) {
-		case "echo":
-			echo(command.Args, command.Stdout)
+		executecommand(*command)
 
-		case "type":
-			typee(strings.ToLower(command.Args[1]), command.Stdout, command.Stderr)
-
-		case "pwd":
-			pwd, _ := os.Getwd()
-			fmt.Fprintln(command.Stdout, pwd)
-
-		case "cd":
-			var err error
-			if command.Args[1] == "~" {
-				homepath := os.Getenv("HOME")
-				err = os.Chdir(homepath)
-			} else {
-				err = os.Chdir(command.Args[1])
-			}
-			if err != nil {
-				fmt.Fprintln(command.Stdout, "cd: "+command.Args[1]+": No such file or directory")
-			}
-
-		case "exit":
-
-		default:
-			foundExecutable, pathOfExecutable := findExecutable(command.Args[0])
-			if foundExecutable {
-				args := command.Args[1:]
-				cmd := exec.Command(pathOfExecutable, args...)
-				cmd.Stdin = os.Stdin
-				cmd.Stdout = command.Stdout
-				cmd.Stderr = command.Stderr
-				cmd.Args[0] = command.Args[0]
-				cmd.Run()
-
-			} else {
-				fmt.Print(command.Args[0])
-				fmt.Println(": command not found")
-			}
-
-			// break
-
-		}
-
-		if strings.ToLower(cmd) == "exit" {
+		if strings.ToLower(command.Name) == "exit" {
 			break
 		}
 
@@ -321,6 +275,57 @@ func parsecommand(tokens []string) *Command {
 	}
 
 	return cmd
+}
+
+func executecommand(command Command) {
+
+	if len(command.Args) == 0 {
+		return
+	}
+	switch strings.ToLower(command.Args[0]) {
+	case "echo":
+		echo(command.Args, command.Stdout)
+
+	case "type":
+		typee(strings.ToLower(command.Args[1]), command.Stdout, command.Stderr)
+
+	case "pwd":
+		pwd, _ := os.Getwd()
+		fmt.Fprintln(command.Stdout, pwd)
+
+	case "cd":
+		var err error
+		if command.Args[1] == "~" {
+			homepath := os.Getenv("HOME")
+			err = os.Chdir(homepath)
+		} else {
+			err = os.Chdir(command.Args[1])
+		}
+		if err != nil {
+			fmt.Fprintln(command.Stdout, "cd: "+command.Args[1]+": No such file or directory")
+		}
+
+	case "exit":
+
+	default:
+		foundExecutable, pathOfExecutable := findExecutable(command.Args[0])
+		if foundExecutable {
+			args := command.Args[1:]
+			cmd := exec.Command(pathOfExecutable, args...)
+			cmd.Stdin = os.Stdin
+			cmd.Stdout = command.Stdout
+			cmd.Stderr = command.Stderr
+			cmd.Args[0] = command.Args[0]
+			cmd.Run()
+
+		} else {
+			fmt.Print(command.Args[0])
+			fmt.Println(": command not found")
+		}
+
+		// break
+
+	}
 }
 
 // // var output io.Writer = os.Stdout
