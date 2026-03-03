@@ -25,7 +25,6 @@ type Command struct {
 }
 
 func main() {
-	// TODO: Uncomment the code below to pass the first stage
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
 
@@ -327,45 +326,3 @@ func executecommand(command Command) {
 
 	}
 }
-
-// // var output io.Writer = os.Stdout
-// // var erroutput io.Writer = os.Stderr
-// // var err_openfile *os.File
-// // var openfile *os.File
-// cmd_object.Args := tokens
-// var filepath_redirection string
-// // redirectionexists := slices.Index(tokens, ">")
-// stderr_redirection_exists := slices.Index(tokens, "2>")
-// var stderr_filepath_redirection string
-// if stderr_redirection_exists != -1 {
-// 	cmd_object.Args = tokens[:stderr_redirection_exists]
-// 	stderr_filepath_redirection = tokens[stderr_redirection_exists+1]
-// 	err_openfile, err := os.OpenFile(stderr_filepath_redirection,
-// 		os.O_CREATE|os.O_WRONLY|os.O_TRUNC,
-// 		0644)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 		continue
-// 	}
-// 	erroutput = err_openfile
-
-// }
-// if redirectionexists == -1 {
-// 	redirectionexists = slices.Index(tokens, "1>")
-// }
-// if redirectionexists != -1 {
-// 	cmd_object.Args = tokens[:redirectionexists]
-// 	if redirectionexists+1 >= len(tokens) {
-// 		fmt.Println("syntax error")
-// 	}
-// 	filepath_redirection = tokens[redirectionexists+1]
-// 	openfile, err := os.OpenFile(filepath_redirection,
-// 		os.O_CREATE|os.O_WRONLY|os.O_TRUNC,
-// 		0644)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 		continue
-// 	}
-// 	output = openfile
-
-// }
